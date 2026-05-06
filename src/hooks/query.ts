@@ -25,7 +25,7 @@ export function useTimetable() {
     queryKey: ["timetable"],
     queryFn: async () => {
       const { data } = await timetable(getCookie());
-      if (data.error) throw new Error(data.error);
+      if ("error" in data) throw new Error(String(data.error));
       return data.timetable as DaySchedule[];
     },
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
@@ -38,7 +38,7 @@ export function useAttendance() {
     queryKey: ["attendance"],
     queryFn: async () => {
       const { data } = await attendance(getCookie());
-      if (data.error) throw new Error(data.error);
+      if ("error" in data) throw new Error(String(data.error));
       return data.attendance as AttendanceDetail[];
     },
     staleTime: 1000 * 60 * 30, // 30 minutes
@@ -51,7 +51,7 @@ export function useMarks() {
     queryKey: ["marks"],
     queryFn: async () => {
       const { data } = await marks(getCookie());
-      if (data.error) throw new Error(data.error);
+      if ("error" in data) throw new Error(String(data.error));
       return data.markList as MarkDetail[];
     },
     staleTime: 1000 * 60 * 30, // 30 minutes
@@ -64,7 +64,7 @@ export function useUserInfo() {
     queryKey: ["userInfo"],
     queryFn: async () => {
       const { data } = await userInfo(getCookie());
-      if (data.error) throw new Error(data.error);
+      if ("error" in data) throw new Error(String(data.error));
       return data.userInfo as UserInfo;
     },
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
@@ -77,7 +77,7 @@ export function useCourse() {
     queryKey: ["course"],
     queryFn: async () => {
       const { data } = await Course(getCookie());
-      if (data.error) throw new Error(data.error);
+      if ("error" in data) throw new Error(String(data.error));
       return data.courseList as CourseDetail[];
     },
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
@@ -91,7 +91,7 @@ export function useCalendar() {
     queryFn: async () => {
       try {
         const { data } = await Calendar(getCookie());
-        if (data.error || !data.calendar) return academicCalendar as Month[];
+        if ("error" in data || !("calendar" in data)) return academicCalendar as Month[];
         return data.calendar as Month[];
       } catch {
         return academicCalendar as Month[];
@@ -107,7 +107,7 @@ export function useDayOrder() {
     queryKey: ["dayOrder"],
     queryFn: async () => {
       const { data } = await dayOrder(getCookie());
-      if (data.error) throw new Error(data.error);
+      if ("error" in data) throw new Error(String(data.error));
       return data as DayOrderResponse;
     },
     enabled: !!getCookie(), // Only fetch if user is authenticated
