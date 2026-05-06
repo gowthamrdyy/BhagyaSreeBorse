@@ -1,0 +1,10 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow private routes
+Disallow: /app/
+Disallow: /auth/logout
+
+# Sitemap
+Sitemap: https://timetablex.in/sitemap.xml
