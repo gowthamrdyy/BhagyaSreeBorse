@@ -42,12 +42,13 @@ const DayChange = ({ data, userName }: { data: DaySchedule[]; userName: string }
   React.useEffect(() => {
     if (dayOrderData) {
       const todayDayOrder = Number(dayOrderData.dayOrder);
-      if (!isNaN(todayDayOrder)) {
+      if (!isNaN(todayDayOrder) && todayDayOrder > 0) {
         setToday(todayDayOrder);
         setDayOrder(todayDayOrder - 1);
         return;
       }
       setToday(0);
+      setDayOrder(0);
     }
   }, [dayOrderData]);
 

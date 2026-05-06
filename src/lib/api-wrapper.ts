@@ -171,7 +171,11 @@ function transformAttendance(raw: Record<string, unknown>): { attendance: Attend
     const absent = parseInt(item.hoursAbsent || "0", 10);
     const attended = conducted - absent;
     const pct = conducted > 0 ? (attended / conducted) * 100 : 0;
-    const needed = Math.max(0, Math.ceil((0.75 * conducted - attended) / 0.25));
+    const isSafe = pct >= 75;
+    const needed = isSafe 
+      ? Math.floor((attended - 0.75 * conducted) / 0.75) 
+      : Math.ceil((0.75 * conducted - attended) / 0.25);
+    
     return {
       courseCode: item.courseCode || "",
       courseTitle: item.courseTitle || "",
@@ -182,7 +186,7 @@ function transformAttendance(raw: Record<string, unknown>): { attendance: Attend
       courseAbsent: absent,
       courseAttendance: item.attendancePercentage || `${pct.toFixed(2)}%`,
       courseAttendanceStatus: {
-        status: pct >= 75 ? "margin" : "required",
+        status: isSafe ? "margin" : "required",
         classes: needed,
       },
     };
