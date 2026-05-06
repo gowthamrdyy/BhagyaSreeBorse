@@ -56,14 +56,14 @@ export const SGPAPredictor: React.FC<SGPAPredictorProps> = ({
       .map((m) => {
         const course   = courseData.find((c) => c.courseCode === m.course);
         const credits  = parseInt(course?.courseCredit ?? "0") || 0;
-        const isProject = m.course.trim().toUpperCase().endsWith("P");
+        const isFullyInternal = m.total.maxMark >= 100 || m.course.trim().toUpperCase().endsWith("P");
         return {
           courseCode:  m.course,
           courseTitle: course?.courseTitle || m.course,
           credits,
           internalObtained: m.total.obtained,
           internalMax:      m.total.maxMark,
-          isProject,
+          isFullyInternal,
         };
       });
   }, [marksData, courseData]);
@@ -73,11 +73,11 @@ export const SGPAPredictor: React.FC<SGPAPredictorProps> = ({
       const gradeIdx   = selectedGrades[s.courseCode] ?? 2; // default A
       const grade      = GRADES[gradeIdx];
 
-      if (s.isProject) {
-        // Project: 100% internal — just show projected grade based on current marks
+      if (s.isFullyInternal) {
+        // Fully Internal: 100% internal — just show projected grade based on current marks
         const pct        = s.internalMax > 0 ? (s.internalObtained / s.internalMax) * 100 : 0;
         const projGrade  = GRADES.find((g) => pct >= g.threshold) ?? GRADES[GRADES.length - 1];
-        return { ...s, gradeIdx, grade, isProject: true, required: 0, isPossible: true, projGrade };
+        return { ...s, gradeIdx, grade, isFullyInternal: true, required: 0, isPossible: true, projGrade };
       }
 
       const { required, isPossible } = calcRequired(s.internalObtained, grade.threshold);
@@ -90,7 +90,7 @@ export const SGPAPredictor: React.FC<SGPAPredictorProps> = ({
     if (!withCredits.length) return null;
     const totalCredits   = withCredits.reduce((s, r) => s + r.credits, 0);
     const weightedPoints = withCredits.reduce((s, r) => {
-      const pts = r.isProject ? (r.projGrade?.points ?? 0) : r.grade.points;
+      const pts = r.isFullyInternal ? (r.projGrade?.points ?? 0) : r.grade.points;
       return s + pts * r.credits;
     }, 0);
     return totalCredits > 0 ? (weightedPoints / totalCredits).toFixed(2) : null;
@@ -152,7 +152,7 @@ export const SGPAPredictor: React.FC<SGPAPredictorProps> = ({
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-muted-foreground mb-0.5">
                     {row.courseCode} · {row.credits} cr
-                    {row.isProject && <span className="ml-2 text-foreground font-bold">PROJECT</span>}
+                    {row.isFullyInternal && <span className="ml-2 text-foreground font-bold">FULLY INTERNAL</span>}
                   </p>
                   <p className="text-sm font-semibold text-foreground leading-snug">{row.courseTitle}</p>
                 </div>
@@ -164,8 +164,8 @@ export const SGPAPredictor: React.FC<SGPAPredictorProps> = ({
                 </div>
               </div>
 
-              {row.isProject ? (
-                /* Project subject — fully internal */
+              {row.isFullyInternal ? (
+                /* Fully internal subject */
                 <div className="flex items-center justify-between border border-border px-3 py-2 bg-accent/30">
                   <p className="text-[11px] text-muted-foreground">100% Internal assessment · No final exam</p>
                   <p className="text-xs font-bold text-foreground">
